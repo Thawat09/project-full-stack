@@ -1,0 +1,51 @@
+@layouts.master({ title: "Dashboard" })
+  @slot('style')
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css" rel="stylesheet" />
+  @end
+
+  <h2>My Tasks</h2>
+  <div id="calendar"></div>
+  <a href="/tasks/create" class="btn btn-primary mt-4">Create New Task</a>
+  <form method="POST" action="/logout" class="mt-2">
+    <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+    <button class="btn btn-outline-danger">Logout</button>
+  </form>
+
+  @slot('script')
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        const calendarEl = document.getElementById('calendar')
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+          initialView: 'dayGridMonth',
+          editable: true,
+          events: [
+            @each(task in tasks)
+              {
+                id: {{ task.id }},
+                title: "{{ task.title }}",
+                start: "{{ task.start_date }}",
+                end: "{{ task.end_date }}",
+                extendedProps: { assignedTo: "{{ task.user.username }}" }
+              },
+            @endeach
+          ],
+          eventDrop: function(info) {
+            fetch('/tasks/update-date', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': "{{ csrfToken }}"
+              },
+              body: JSON.stringify({
+                id: info.event.id,
+                newDate: info.event.startStr
+              })
+            })
+          }
+        })
+        calendar.render()
+      })
+    </script>
+  @end
+@end

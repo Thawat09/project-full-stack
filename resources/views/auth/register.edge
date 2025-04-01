@@ -1,0 +1,33 @@
+@layouts.master({ title: "Register User" })
+  <div class="container mt-5">
+    <h2>Register New User</h2>
+    <form method="POST" action="/register">
+      <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+
+      <div class="mb-3">
+        <label for="username" class="form-label">Username</label>
+        <input name="username" class="form-control" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input name="email" type="email" class="form-control" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <input name="password" type="password" class="form-control" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="role" class="form-label">Role</label>
+        <select name="role" class="form-select" required>
+          <option value="user">User</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+
+      <button class="btn btn-primary">Create</button>
+    </form>
+  </div>
+@end
