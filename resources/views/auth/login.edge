@@ -8,6 +8,9 @@
     <div class="card shadow p-4" style="width: 400px;">
       <h2 class="mb-3">Login</h2>
 
+      @if(flashMessages.success)
+        <div class="alert alert-success">{{ flashMessages.success }}</div>
+      @endif
       @if(flashMessages.error)
         <div class="alert alert-danger">{{ flashMessages.error }}</div>
       @endif

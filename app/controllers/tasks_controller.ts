@@ -38,7 +38,7 @@ export default class TasksController {
     return view.render('tasks/create', { users, authUser: auth.user! })
   }
 
-  public async store({ request, response }: HttpContext) {
+  public async store({ request, response, session }: HttpContext) {
     const {
       title,
       description,
@@ -57,6 +57,7 @@ export default class TasksController {
       status: status ?? 'pending',
     })
 
+    session.flash('success', 'Flash works!')
     return response.redirect('/dashboard')
   }
 
@@ -92,7 +93,7 @@ export default class TasksController {
     return view.render('tasks/edit', { task, users, authUser: auth.user! })
   }
 
-  public async update({ auth, params, request, response }: HttpContext) {
+  public async update({ auth, params, request, response, session }: HttpContext) {
     const task = await Task.find(params.id)
     if (!task) return response.redirect('/dashboard')
 
@@ -123,7 +124,7 @@ export default class TasksController {
     }
 
     await task.save()
-
+    session.flash('success', 'Flash works!')
     return response.redirect('/tasks/table')
   }
 

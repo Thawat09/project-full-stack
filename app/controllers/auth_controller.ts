@@ -12,6 +12,7 @@ export default class AuthController {
     try {
       const user = await User.verifyCredentials(email, password.trim())
       await auth.use('web').login(user)
+      session.flash('success', 'Flash works!')
       return response.redirect('/dashboard')
     } catch {
       session.flash('error', 'Invalid credentials')
@@ -28,7 +29,7 @@ export default class AuthController {
     return view.render('auth/register')
   }
 
-  public async register({ request, response }: HttpContext) {
+  public async register({ request, response, session }: HttpContext) {
     const { username, email, password, role } = request.only([
       'username',
       'email',
@@ -45,6 +46,7 @@ export default class AuthController {
       role: roleSafe,
     })
 
+    session.flash('success', 'Flash works!')
     return response.redirect('/dashboard')
   }
 }
