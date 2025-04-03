@@ -1,0 +1,54 @@
+@layouts.master({ title: "Edit Task" })
+  <h2>Edit Task</h2>
+
+  <form method="POST" action="/tasks/{{ task.id }}">
+    <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+
+    <div class="mb-3">
+      <label>Title</label>
+      <input type="text" name="title" class="form-control" value="{{ task.title }}" required>
+    </div>
+
+    <div class="mb-3">
+      <label>Description</label>
+      <textarea name="description" class="form-control">{{ task.description }}</textarea>
+    </div>
+
+    <div class="mb-3">
+      <label>Start Date</label>
+      <input type="date" name="start_date" class="form-control" value="{{ task.start_date.toFormat('yyyy-MM-dd') }}" required>
+    </div>
+
+    <div class="mb-3">
+      <label>End Date</label>
+      <input type="date" name="end_date" class="form-control" value="{{ task.end_date.toFormat('yyyy-MM-dd') }}">
+    </div>
+
+    @if(authUser.role === 'admin')
+      <div class="mb-3">
+        <label>Assign To</label>
+        <select name="assigned_to" class="form-select" required>
+          @each(user in users)
+            <option value="{{ user.id }}" @if(user.id === task.assigned_to) selected @endif>
+              {{ user.username }}
+            </option>
+          @endeach
+        </select>
+      </div>
+    @else
+      <input type="hidden" name="assigned_to" value="{{ authUser.id }}">
+    @endif
+
+    <div class="mb-3">
+      <label>Status</label>
+      <select name="status" class="form-select" required>
+        <option value="pending" {{ task.status === 'pending' ? 'selected' : '' }}>Pending</option>
+        <option value="in_progress" {{ task.status === 'in_progress' ? 'selected' : '' }}>In Progress</option>
+        <option value="completed" {{ task.status === 'completed' ? 'selected' : '' }}>Completed</option>
+      </select>
+    </div>
+
+    <button class="btn btn-success">Update</button>
+    <a href="/tasks/table" class="btn btn-secondary">Back</a>
+  </form>
+@end

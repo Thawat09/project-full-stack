@@ -1,0 +1,69 @@
+@layouts.master({ title: "Task Table" })
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>All Tasks (Latest First)</h2>
+
+    <a href="/tasks/create" class="btn btn-primary">
+      <i class="bi bi-plus-circle"></i> Create Task
+    </a>
+  </div>
+
+  @if(flashMessages.success)
+    <div class="alert alert-success">{{ flashMessages.success }}</div>
+  @endif
+  @if(flashMessages.error)
+    <div class="alert alert-danger">{{ flashMessages.error }}</div>
+  @endif
+
+  <table class="table table-bordered table-hover">
+    <thead class="table-light">
+      <tr>
+        <th>Title</th>
+        <th>Description</th>
+        <th>Start Date</th>
+        <th>End Date</th>
+        <th>Assigned To</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      @each(task in tasks)
+        <tr>
+          <td>{{ task.title }}</td>
+          <td>{{ task.description }}</td>
+          <td>{{ task.start_date.toFormat('yyyy-MM-dd') }}</td>
+          <td>{{ task.end_date.toFormat('yyyy-MM-dd') }}</td>
+          <td>{{ task.user?.username || 'Unknown' }}</td>
+          <td>
+            @if(task.status === 'pending')
+              <span class="badge bg-warning text-dark">Pending</span>
+            @elseif(task.status === 'in_progress')
+              <span class="badge bg-primary">In Progress</span>
+            @elseif(task.status === 'completed')
+              <span class="badge bg-success">Completed</span>
+            @else
+              <span class="badge bg-secondary">Unknown</span>
+            @endif
+          </td>
+          <td>
+            @if(authUser.role === 'admin' || task.assigned_to === authUser.id)
+              <a href="/tasks/{{ task.id }}/edit" class="btn btn-sm btn-warning me-1">
+                <i class="bi bi-pencil-square"></i> Edit
+              </a>
+            @endif
+
+            @if(authUser.role === 'admin')
+              <form method="POST" action="/tasks/{{ task.id }}" class="d-inline" onsubmit="return confirm('Are you sure to delete this task?')">
+                <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+                <input type="hidden" name="_method" value="DELETE">
+                <button class="btn btn-sm btn-danger">
+                  <i class="bi bi-trash-fill"></i> Delete
+                </button>
+              </form>
+            @endif
+          </td>
+        </tr>
+      @endeach
+    </tbody>
+  </table>
+@end

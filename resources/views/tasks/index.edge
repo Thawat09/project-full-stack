@@ -29,10 +29,19 @@
                 title: "{{ task.title }}",
                 start: "{{ task.start_date }}",
                 end: "{{ task.end_date }}",
-                extendedProps: { assignedTo: "{{ task.user.username }}" }
+                backgroundColor: "{{ task.status === 'pending' ? '#ffc107' : task.status === 'in_progress' ? '#0d6efd' : '#198754' }}", // yellow, blue, green
+                borderColor: "#000",
+                textColor: "#fff",
+                extendedProps: {
+                  assignedTo: "{{ task.user.username }}",
+                  status: "{{ task.status }}"
+                }
               },
             @endeach
           ],
+          eventClick: function(info) {
+            window.location.href = `/tasks/${info.event.id}/edit`;
+          },
           eventDrop: function(info) {
             fetch('/tasks/update-date', {
               method: 'POST',

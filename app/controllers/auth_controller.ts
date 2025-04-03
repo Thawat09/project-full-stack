@@ -36,11 +36,13 @@ export default class AuthController {
       'role',
     ])
 
+    const roleSafe = role === 'admin' ? 'admin' : 'user'
+
     await User.create({
       username: username.trim(),
       email: email.trim(),
       password: password.trim(),
-      role: role === 'admin' ? 'admin' : 'user',
+      role: roleSafe,
     })
 
     return response.redirect('/dashboard')

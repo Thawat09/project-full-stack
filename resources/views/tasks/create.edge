@@ -1,23 +1,52 @@
 @layouts.master({ title: "Create Task" })
   <h2>Create Task</h2>
+
   <form method="POST" action="/tasks">
     <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+
     <div class="mb-3">
       <label>Title</label>
-      <input type="text" name="title" class="form-control" required>
+      <input name="title" class="form-control" required>
     </div>
+
     <div class="mb-3">
       <label>Description</label>
       <textarea name="description" class="form-control"></textarea>
     </div>
+
     <div class="mb-3">
       <label>Start Date</label>
-      <input type="date" name="start_date" class="form-control" required>
+      <input name="start_date" type="date" class="form-control" required>
     </div>
+
     <div class="mb-3">
       <label>End Date</label>
-      <input type="date" name="end_date" class="form-control">
+      <input name="end_date" type="date" class="form-control">
     </div>
+
+    @if(authUser.role === 'admin')
+      <div class="mb-3">
+        <label>Assign To</label>
+        <select name="assigned_to" class="form-select" required>
+          @each(user in users)
+            <option value="{{ user.id }}">{{ user.username }}</option>
+          @endeach
+        </select>
+      </div>
+    @else
+      <input type="hidden" name="assigned_to" value="{{ authUser.id }}">
+    @endif
+
+    <div class="mb-3">
+      <label>Status</label>
+      <select name="status" class="form-select" required>
+        <option value="" disabled selected>-- Select Status --</option>
+        <option value="pending">Pending</option>
+        <option value="in_progress">In Progress</option>
+        <option value="completed">Completed</option>
+      </select>
+    </div>
+
     <button class="btn btn-success">Save</button>
     <a href="/dashboard" class="btn btn-secondary">Back</a>
   </form>

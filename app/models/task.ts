@@ -20,6 +20,9 @@ export default class Task extends BaseModel {
   declare end_date: DateTime
 
   @column()
+  declare status: 'pending' | 'in_progress' | 'completed'
+
+  @column()
   declare assigned_to: number
 
   @belongsTo(() => User, { foreignKey: 'assigned_to' })

@@ -10,6 +10,10 @@ export default class extends BaseSchema {
       table.text('description')
       table.date('start_date')
       table.date('end_date')
+      table
+        .enum('status', ['pending', 'in_progress', 'completed'])
+        .notNullable()
+        .defaultTo('pending')
       table.integer('assigned_to').unsigned().references('id').inTable('users').onDelete('CASCADE')
       table.timestamp('created_at')
       table.timestamp('updated_at')
