@@ -1,0 +1,64 @@
+@layouts.master({ title: "Manage Users" })
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Users</h2>
+    @if(authUser.role === 'admin')
+      <a href="/register" class="btn btn-primary">
+        <i class="bi bi-person-plus-fill"></i> Create User
+      </a>
+    @endif
+  </div>
+
+  @if(flashMessages.success)
+    <div class="alert alert-success">{{ flashMessages.success }}</div>
+  @endif
+  @if(flashMessages.error)
+    <div class="alert alert-danger">{{ flashMessages.error }}</div>
+  @endif
+
+  <table class="table table-bordered table-hover">
+    <thead class="table-light">
+      <tr>
+        <th>ID</th>
+        <th>Username</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      @each(user in users)
+        <tr>
+          <td>{{ user.id }}</td>
+          <td>{{ user.username }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.role }}</td>
+          <td class="d-flex gap-2">
+            {{-- Edit button --}}
+            @if(authUser.role === 'admin' || user.id === authUser.id)
+              <a href="/users/{{ user.id }}/edit" class="btn btn-sm btn-warning">
+                <i class="bi bi-pencil-square"></i>
+              </a>
+            @endif
+
+            {{-- Delete button --}}
+            @if(authUser.role === 'admin')
+              @if(user.id !== authUser.id)
+                <form method="POST" action="/users/{{ user.id }}" onsubmit="return confirm('Are you sure?')">
+                  <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+                  <input type="hidden" name="_method" value="DELETE">
+                  <button class="btn btn-sm btn-danger">
+                    <i class="bi bi-trash-fill"></i>
+                  </button>
+                </form>
+              @else
+                <button class="btn btn-sm btn-danger" disabled>
+                  <i class="bi bi-trash-fill"></i>
+                </button>
+              @endif
+            @endif
+          </td>
+        </tr>
+      @endeach
+    </tbody>
+  </table>
+@end

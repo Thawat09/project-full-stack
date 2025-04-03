@@ -1,23 +1,26 @@
 @layouts.master({ title: "Dashboard" })
   @slot('style')
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css" rel="stylesheet" />
+    <style>
+      ##calendar {
+        width: 90vw;
+        max-width: 90vw;
+        margin: 5vh auto;
+      }
+    </style>
   @end
 
-  <h2>My Tasks</h2>
   <div id="calendar"></div>
-  <a href="/tasks/create" class="btn btn-primary mt-4">Create New Task</a>
-  <form method="POST" action="/logout" class="mt-2">
-    <input type="hidden" name="_csrf" value="{{ csrfToken }}">
-    <button class="btn btn-outline-danger">Logout</button>
-  </form>
 
   @slot('script')
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
       document.addEventListener('DOMContentLoaded', function () {
         const calendarEl = document.getElementById('calendar')
         const calendar = new FullCalendar.Calendar(calendarEl, {
           initialView: 'dayGridMonth',
+          height: '70vh',
           editable: true,
           events: [
             @each(task in tasks)
@@ -42,10 +45,33 @@
                 newDate: info.event.startStr
               })
             })
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                Swal.fire({
+                  icon: 'success',
+                  title: 'อัพเดทสำเร็จ',
+                  text: 'วันของกิจกรรมถูกอัพเดทเรียบร้อยแล้ว'
+                });
+              } else {
+                Swal.fire({
+                  icon: 'error',
+                  title: 'อัพเดทไม่สำเร็จ',
+                  text: 'ไม่สามารถอัพเดทวันของกิจกรรมได้'
+                });
+              }
+            })
+            .catch(error => {
+              Swal.fire({
+                icon: 'error',
+                title: 'อัพเดทไม่สำเร็จ',
+                text: 'เกิดข้อผิดพลาดระหว่างการอัพเดท'
+              });
+            });
           }
-        })
-        calendar.render()
-      })
+        });
+        calendar.render();
+      });
     </script>
   @end
 @end

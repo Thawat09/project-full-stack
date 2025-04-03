@@ -1,0 +1,44 @@
+@layouts.master({ title: "Edit User" })
+  <h2>Edit User</h2>
+
+  @if(flashMessages.error)
+    <div class="alert alert-danger">{{ flashMessages.error }}</div>
+  @endif
+  @if(flashMessages.success)
+    <div class="alert alert-success">{{ flashMessages.success }}</div>
+  @endif
+
+  <form method="POST" action="/users/{{ user.id }}">
+    <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+
+    <div class="mb-3">
+      <label class="form-label">Username</label>
+      <input name="username" class="form-control" value="{{ user.username }}" required>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Email</label>
+      <input name="email" type="email" class="form-control" value="{{ user.email }}" required>
+    </div>
+
+    @if(auth.user?.role === 'admin')
+      <div class="mb-3">
+        <label class="form-label">Role</label>
+        <select name="role" class="form-select" required>
+          <option value="user" @if(user.role === 'user') selected @endif>User</option>
+          <option value="admin" @if(user.role === 'admin') selected @endif>Admin</option>
+        </select>
+      </div>
+    @endif
+
+    @if(auth.user?.id === user.id)
+      <div class="mb-3">
+        <label class="form-label">New Password (optional)</label>
+        <input name="password" type="password" class="form-control" placeholder="Leave blank to keep current password">
+      </div>
+    @endif
+
+    <button class="btn btn-success">Save</button>
+    <a href="/users" class="btn btn-secondary">Back</a>
+  </form>
+@end
