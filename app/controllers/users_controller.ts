@@ -1,5 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import User from '#models/user'
+import { userValidator } from '#validators/user'
 
 export default class UsersController {
   public async index({ auth, view }: HttpContext) {
@@ -25,7 +26,7 @@ export default class UsersController {
     return view.render('users/edit', { user })
   }
 
-  public async update({ auth, request, params, response }: HttpContext) {
+  public async update({ auth, request, params, response, session }: HttpContext) {
     const user = await User.find(params.id)
 
     if (!user) {
@@ -39,22 +40,24 @@ export default class UsersController {
       return response.redirect('/users')
     }
 
-    const { username, email, role, password } = request.only([
-      'username',
-      'email',
-      'role',
-      'password',
-    ])
+    const payload = request.only(['username', 'email', 'role', 'password'])
 
-    user.username = username
-    user.email = email
-
-    if (isAdmin) {
-      user.role = role
+    try {
+      await userValidator.validate(payload)
+    } catch (errors) {
+      session.flash('errors', errors)
+      return response.redirect('back')
     }
 
-    if (isOwner && password && password.trim() !== '') {
-      user.password = password
+    user.username = payload.username
+    user.email = payload.email
+
+    if (isAdmin) {
+      user.role = payload.role
+    }
+
+    if (isOwner && payload.password && payload.password.trim() !== '') {
+      user.password = payload.password
     }
 
     await user.save()

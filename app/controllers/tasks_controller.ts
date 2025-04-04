@@ -1,6 +1,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import Task from '#models/task'
 import User from '#models/user'
+import { taskValidator } from '#validators/task'
 
 export default class TasksController {
   public async index({ auth, view, response }: HttpContext) {
@@ -38,23 +39,35 @@ export default class TasksController {
     return view.render('tasks/create', { users, authUser: auth.user! })
   }
 
-  public async store({ request, response }: HttpContext) {
-    const {
-      title,
-      description,
-      start_date: startDate,
-      end_date: endDate,
-      assigned_to: assignedTo,
-      status,
-    } = request.only(['title', 'description', 'start_date', 'end_date', 'assigned_to', 'status'])
+  public async store({ request, response, session }: HttpContext) {
+    const payload = request.only([
+      'title',
+      'description',
+      'start_date',
+      'end_date',
+      'assigned_to',
+      'status',
+    ])
+
+    try {
+      await taskValidator.validate({
+        title: payload.title,
+        description: payload.description,
+        start_date: payload.start_date,
+        end_date: payload.end_date,
+      })
+    } catch (errors) {
+      session.flash('errors', errors)
+      return response.redirect('back')
+    }
 
     await Task.create({
-      title,
-      description,
-      start_date: startDate,
-      end_date: endDate,
-      assigned_to: assignedTo,
-      status: status ?? 'pending',
+      title: payload.title,
+      description: payload.description,
+      start_date: payload.start_date,
+      end_date: payload.end_date,
+      assigned_to: payload.assigned_to,
+      status: payload.status ?? 'pending',
     })
 
     return response.redirect('/dashboard')
@@ -91,7 +104,7 @@ export default class TasksController {
     return view.render('tasks/edit', { task, users, authUser: auth.user! })
   }
 
-  public async update({ auth, params, request, response }: HttpContext) {
+  public async update({ auth, params, request, response, session }: HttpContext) {
     const task = await Task.find(params.id)
     if (!task) return response.redirect('/dashboard')
 
@@ -102,23 +115,35 @@ export default class TasksController {
       return response.redirect('/dashboard')
     }
 
-    const {
-      title,
-      description,
-      start_date: startDate,
-      end_date: endDate,
-      assigned_to: assignedTo,
-      status,
-    } = request.only(['title', 'description', 'start_date', 'end_date', 'assigned_to', 'status'])
+    const payload = request.only([
+      'title',
+      'description',
+      'start_date',
+      'end_date',
+      'assigned_to',
+      'status',
+    ])
 
-    task.title = title
-    task.description = description
-    task.start_date = startDate
-    task.end_date = endDate
-    task.status = status
+    try {
+      await taskValidator.validate({
+        title: payload.title,
+        description: payload.description,
+        start_date: payload.start_date,
+        end_date: payload.end_date,
+      })
+    } catch (errors) {
+      session.flash('errors', errors)
+      return response.redirect('back')
+    }
+
+    task.title = payload.title
+    task.description = payload.description
+    task.start_date = payload.start_date
+    task.end_date = payload.end_date
+    task.status = payload.status
 
     if (auth.user!.role === 'admin') {
-      task.assigned_to = assignedTo
+      task.assigned_to = payload.assigned_to
     }
 
     await task.save()

@@ -15,4 +15,4 @@ vine.messagesProvider = new SimpleMessagesProvider({
   'end_date.date': 'Invalid date format for end date',
 })
 
-export const loginValidator = vine.compile(schema)
+export const taskValidator = vine.compile(schema)
