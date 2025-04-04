@@ -6,16 +6,16 @@ export default class AuthController {
     return view.render('auth/login')
   }
 
-  public async login({ request, auth, response, session }: HttpContext) {
+  public async login({ request, auth, response }: HttpContext) {
     const { email, password } = request.only(['email', 'password'])
 
     try {
       const user = await User.verifyCredentials(email, password.trim())
+
       await auth.use('web').login(user)
-      session.flash('success', 'Flash works!')
+
       return response.redirect('/dashboard')
     } catch {
-      session.flash('error', 'Invalid credentials')
       return response.redirect('/login')
     }
   }
@@ -29,7 +29,7 @@ export default class AuthController {
     return view.render('auth/register')
   }
 
-  public async register({ request, response, session }: HttpContext) {
+  public async register({ request, response }: HttpContext) {
     const { username, email, password, role } = request.only([
       'username',
       'email',
@@ -46,7 +46,6 @@ export default class AuthController {
       role: roleSafe,
     })
 
-    session.flash('success', 'Flash works!')
     return response.redirect('/dashboard')
   }
 }

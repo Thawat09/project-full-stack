@@ -8,6 +8,6 @@ router
     router.get('/users', [UsersController, 'index'])
     router.get('/users/:id/edit', [UsersController, 'edit'])
     router.post('/users/:id', [UsersController, 'update'])
-    router.delete('/users/:id', [UsersController, 'destroy'])
+    router.post('/users/:id/delete', [UsersController, 'destroy'])
   })
   .use(middleware.auth())

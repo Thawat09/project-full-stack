@@ -1,6 +1,6 @@
 @layouts.master({ title: "Task Table" })
   @slot('style')
-    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet" />
     <style>
       .card-hover:hover {
         box-shadow: 0 0 20px rgba(0,0,0,0.1);
@@ -17,13 +17,6 @@
       <i class="bi bi-plus-circle"></i> Create Task
     </a>
   </div>
-
-  @if(flashMessages.success)
-    <div class="alert alert-success">{{ flashMessages.success }}</div>
-  @endif
-  @if(flashMessages.error)
-    <div class="alert alert-danger">{{ flashMessages.error }}</div>
-  @endif
 
   <div class="table-responsive card-hover" data-aos="fade-up">
     <table class="table table-bordered table-hover rounded shadow-sm">
@@ -60,19 +53,18 @@
             <td>
               @if(authUser.role === 'admin' || task.assigned_to === authUser.id)
                 <a href="/tasks/{{ task.id }}/edit" class="btn btn-sm btn-warning me-1">
-                  <i class="bi bi-pencil-square"></i> Edit
+                  <i class="bi bi-pencil-square"></i>Edit
                 </a>
               @endif
 
               @if(authUser.role === 'admin')
-                <form method="POST" action="/tasks/{{ task.id }}" class="delete-form d-inline">
-                  <input type="hidden" name="_csrf" value="{{ csrfToken }}">
-                  <input type="hidden" name="_method" value="DELETE">
+                <form method="POST" action="/tasks/{{ task.id }}/delete" class="d-inline delete-form">
+                  <input type="hidden" name="_csrf" value="{{ csrfToken }}" />
                   <button type="submit" class="btn btn-sm btn-outline-danger btn-delete">
                     <i class="bi bi-trash-fill"></i>
                   </button>
                 </form>
-                @endif
+              @endif
             </td>
           </tr>
         @endeach
@@ -80,28 +72,20 @@
     </table>
   </div>
 
+  @include('components/modals/delete')
+
   @slot('script')
     <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
     <script>AOS.init();</script>
     <script>
-      document.querySelectorAll('.btn-delete').forEach(button => {
+      document.querySelectorAll('.delete-form .btn-delete').forEach(button => {
         button.addEventListener('click', function (e) {
           e.preventDefault()
           const form = this.closest('form')
-
-          Swal.fire({
-            title: 'Are you sure?',
-            text: "You won't be able to revert this!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Yes, delete it!'
-          }).then((result) => {
-            if (result.isConfirmed) {
-              form.submit()
-            }
-          })
+          const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'))
+          const modalForm = document.getElementById('deleteModalForm')
+          modalForm.setAttribute('action', form.getAttribute('action'))
+          deleteModal.show()
         })
       })
     </script>

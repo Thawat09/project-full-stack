@@ -1,13 +1,6 @@
 @layouts.master({ title: "Edit User" })
   <h2>Edit User</h2>
 
-  @if(flashMessages.success)
-    <div class="alert alert-success">{{ flashMessages.success }}</div>
-  @endif
-  @if(flashMessages.error)
-    <div class="alert alert-danger">{{ flashMessages.error }}</div>
-  @endif
-
   <form method="POST" action="/users/{{ user.id }}">
     <input type="hidden" name="_csrf" value="{{ csrfToken }}">
 

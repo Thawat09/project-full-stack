@@ -38,7 +38,7 @@ export default class TasksController {
     return view.render('tasks/create', { users, authUser: auth.user! })
   }
 
-  public async store({ request, response, session }: HttpContext) {
+  public async store({ request, response }: HttpContext) {
     const {
       title,
       description,
@@ -57,7 +57,6 @@ export default class TasksController {
       status: status ?? 'pending',
     })
 
-    session.flash('success', 'Flash works!')
     return response.redirect('/dashboard')
   }
 
@@ -69,17 +68,16 @@ export default class TasksController {
     return response.json({ success: true })
   }
 
-  public async destroy({ auth, params, response, session }: HttpContext) {
+  public async destroy({ auth, params, response }: HttpContext) {
     const user = auth.user!
     const task = await Task.findOrFail(params.id)
 
     if (user.role !== 'admin') {
-      session.flash('error', 'Only admin can delete tasks')
       return response.redirect('/tasks/table')
     }
 
     await task.delete()
-    session.flash('success', 'Task deleted successfully')
+
     return response.redirect('/tasks/table')
   }
 
@@ -93,7 +91,7 @@ export default class TasksController {
     return view.render('tasks/edit', { task, users, authUser: auth.user! })
   }
 
-  public async update({ auth, params, request, response, session }: HttpContext) {
+  public async update({ auth, params, request, response }: HttpContext) {
     const task = await Task.find(params.id)
     if (!task) return response.redirect('/dashboard')
 
@@ -124,7 +122,7 @@ export default class TasksController {
     }
 
     await task.save()
-    session.flash('success', 'Flash works!')
+
     return response.redirect('/tasks/table')
   }
 

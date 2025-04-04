@@ -10,11 +10,36 @@
     </style>
   @end
 
-  <div id="calendar"></div>
+  <div class="position-fixed top-0 end-0 p-3" style="z-index: 9999">
+    <div id="toastContainer" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body" id="toastMessage">
+          Updated successfully
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close" />
+      </div>
+    </div>
+  </div>
+
+  <div id="calendar">
+  </div>
 
   @slot('script')
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
     <script>
+      function showToast(message, isSuccess = true) {
+        const toastEl = document.getElementById('toastContainer')
+        const toastBody = document.getElementById('toastMessage')
+
+        toastBody.textContent = message
+        toastEl.classList.remove('bg-success', 'bg-danger')
+        toastEl.classList.add(isSuccess ? 'bg-success' : 'bg-danger')
+
+        const toast = new bootstrap.Toast(toastEl)
+
+        toast.show()
+      }
+
       document.addEventListener('DOMContentLoaded', function () {
         const calendarEl = document.getElementById('calendar')
         const calendar = new FullCalendar.Calendar(calendarEl, {
@@ -28,7 +53,7 @@
                 title: "{{ task.title }}",
                 start: "{{ task.start_date }}",
                 end: "{{ task.end_date }}",
-                backgroundColor: "{{ task.status === 'pending' ? '#ffc107' : task.status === 'in_progress' ? '#0d6efd' : '#198754' }}", // yellow, blue, green
+                backgroundColor: "{{ task.status === 'pending' ? '#ffc107' : task.status === 'in_progress' ? '#0d6efd' : '#198754' }}",
                 borderColor: "#000",
                 textColor: "#fff",
                 extendedProps: {
@@ -56,25 +81,13 @@
             .then(response => response.json())
             .then(data => {
               if (data.success) {
-                Swal.fire({
-                  icon: 'success',
-                  title: 'อัพเดทสำเร็จ',
-                  text: 'วันของกิจกรรมถูกอัพเดทเรียบร้อยแล้ว'
-                });
+                showToast('วันของกิจกรรมถูกอัพเดทเรียบร้อยแล้ว', true)
               } else {
-                Swal.fire({
-                  icon: 'error',
-                  title: 'อัพเดทไม่สำเร็จ',
-                  text: 'ไม่สามารถอัพเดทวันของกิจกรรมได้'
-                });
+                showToast('ไม่สามารถอัพเดทวันของกิจกรรมได้', false)
               }
             })
             .catch(error => {
-              Swal.fire({
-                icon: 'error',
-                title: 'อัพเดทไม่สำเร็จ',
-                text: 'เกิดข้อผิดพลาดระหว่างการอัพเดท'
-              });
+              showToast('เกิดข้อผิดพลาดระหว่างการอัพเดท', false)
             });
           }
         });

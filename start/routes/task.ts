@@ -11,8 +11,7 @@ router
     router.post('/tasks/update-date', [TasksController, 'updateDate'])
     router.get('/tasks/:id/edit', [TasksController, 'edit'])
     router.post('/tasks/:id', [TasksController, 'update'])
-    router.delete('/tasks/:id', [TasksController, 'destroy'])
-
+    router.post('/tasks/:id/delete', [TasksController, 'destroy'])
     router.get('/tasks/table', [TasksController, 'list'])
   })
   .use(middleware.auth())
